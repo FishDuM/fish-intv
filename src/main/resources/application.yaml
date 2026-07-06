@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: fish-intv
+  profiles:
+    active: local
+server:
+  port: 8912
+
+#app:
+#  storage:
+#    endpoint: http://localhost:9000    # RustFS 服务地址
+#    access-key: ${RUSTFS_ACCESS_KEY}   # 访问密钥
+#    secret-key: ${RUSTFS_SECRET_KEY}   # 私密密钥
+#    bucket: fish-intv            # 存储桶名称
+#    region: us-east-1                  # 区域（S3协议需要，可任意设置）
