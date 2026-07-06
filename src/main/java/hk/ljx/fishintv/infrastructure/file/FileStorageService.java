@@ -2,7 +2,7 @@ package hk.ljx.fishintv.infrastructure.file;
 
 import hk.ljx.fishintv.common.config.StorageConfigProperties;
 import hk.ljx.fishintv.common.exception.BusinessException;
-import lombok.RequiredArgsConstructor;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,12 +19,13 @@ import static hk.ljx.fishintv.common.exception.ErrorCode.STORAGE_UPLOAD_FAILED;
 
 @Slf4j
 @Service
-@RequiredArgsConstructor
 public class FileStorageService {
 
-    private final S3Client s3Client;
+    @Resource
+    private S3Client s3Client;
 
-    private final StorageConfigProperties storageConfig;
+    @Resource
+    private StorageConfigProperties storageConfigProperties;
 
     /**
      * 上传简历
@@ -81,7 +82,7 @@ public class FileStorageService {
         String fileKey = generateFileKey(originalFilename, prefix);
         try{
             PutObjectRequest putRequest = PutObjectRequest.builder()
-                    .bucket(storageConfig.getBucket())
+                    .bucket(storageConfigProperties.getBucket())
                     .key(fileKey)
                     .contentType(file.getContentType())
                     .contentLength(file.getSize())
@@ -110,7 +111,7 @@ public class FileStorageService {
         }
         try {
             GetObjectRequest getRequest = GetObjectRequest.builder()
-                    .bucket(storageConfig.getBucket())
+                    .bucket(storageConfigProperties.getBucket())
                     .key(fileKey)
                     .build();
             return s3Client.getObjectAsBytes(getRequest).asByteArray();
@@ -137,7 +138,7 @@ public class FileStorageService {
         }
         try {
             DeleteObjectRequest deleteRequest = DeleteObjectRequest.builder()
-                    .bucket(storageConfig.getBucket())
+                    .bucket(storageConfigProperties.getBucket())
                     .key(fileKey)
                     .build();
             s3Client.deleteObject(deleteRequest);
@@ -153,19 +154,19 @@ public class FileStorageService {
     public void ensureBucketExists(){
         try {
             HeadBucketRequest headBucketRequest = HeadBucketRequest.builder()
-                    .bucket(storageConfig.getBucket())
+                    .bucket(storageConfigProperties.getBucket())
                     .build();
             s3Client.headBucket(headBucketRequest);
-            log.info("存储桶已存在: {}", storageConfig.getBucket());
+            log.info("存储桶已存在: {}", storageConfigProperties.getBucket());
         } catch (NoSuchBucketException e){
-            log.warn("存储桶: {} 不存在, 正在自动创建", storageConfig.getBucket());
+            log.warn("存储桶: {} 不存在, 正在自动创建", storageConfigProperties.getBucket());
             CreateBucketRequest createBucketRequest = CreateBucketRequest.builder()
-                    .bucket(storageConfig.getBucket())
+                    .bucket(storageConfigProperties.getBucket())
                     .build();
             s3Client.createBucket(createBucketRequest);
-            log.info("存储桶创建成功: {}", storageConfig.getBucket());
+            log.info("存储桶创建成功: {}", storageConfigProperties.getBucket());
         } catch (S3Exception e) {
-            log.error("检查存储桶失败, 桶名: {}, 失败信息: {}",storageConfig.getBucket() , e.getMessage());
+            log.error("检查存储桶失败, 桶名: {}, 失败信息: {}",storageConfigProperties.getBucket() , e.getMessage());
         }
     }
 
@@ -204,7 +205,7 @@ public class FileStorageService {
     private boolean fileExists(String fileKey) {
         try {
             HeadObjectRequest headRequest = HeadObjectRequest.builder()
-                    .bucket(storageConfig.getBucket())
+                    .bucket(storageConfigProperties.getBucket())
                     .key(fileKey)
                     .build();
             s3Client.headObject(headRequest);
