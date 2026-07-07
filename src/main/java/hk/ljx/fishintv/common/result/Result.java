@@ -21,11 +21,15 @@ public class Result<T> {
     }
 
     public static <T> Result<T> success(T data) {
-        return new Result<>(200, null, data);
+        return new Result<>(1, null, data);
     }
 
     public static <T> Result<T> error(int code, String message) {
         return new Result<>(code, message, null);
+    }
+
+    public static <T> Result<T> error(ErrorCode errorCode, String message) {
+        return new Result<>(errorCode.getCode(), message, null);
     }
 
     public static <T> Result<T> error(ErrorCode errorCode) {

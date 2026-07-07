@@ -1,29 +1,48 @@
 package hk.ljx.fishintv.common.test;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.dev33.satoken.annotation.SaCheckRole;
 import cn.dev33.satoken.stp.StpUtil;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import hk.ljx.fishintv.common.exception.BusinessException;
+import hk.ljx.fishintv.common.result.Result;
+import hk.ljx.fishintv.modules.user.dto.UserLoginDTO;
+import hk.ljx.fishintv.modules.user.entity.FishUser;
+import hk.ljx.fishintv.modules.user.mapper.FishUserMapper;
+import hk.ljx.fishintv.modules.user.service.IFishUserService;
+import hk.ljx.fishintv.modules.user.vo.UserLoginVO;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
+
+import static hk.ljx.fishintv.common.exception.ErrorCode.LOGIN_ERROR;
+import static hk.ljx.fishintv.modules.user.contents.UserConstant.ADMIN;
+import static hk.ljx.fishintv.modules.user.contents.UserConstant.VIP;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
 
-    // 测试登录，浏览器访问： http://localhost:8912/user/doLogin?username=zhang&password=123456
-    @GetMapping("/doLogin")
-    public String doLogin(String username, String password) {
-        // 此处仅作模拟示例，真实项目需要从数据库中查询数据进行比对 
-        if("zhang".equals(username) && "123456".equals(password)) {
-            StpUtil.login(10001);
-            return "登录成功";
-        }
-        return "登录失败";
+    @Resource
+    private IFishUserService  fishUserService;
+
+    @PostMapping("/login")
+    public Result<UserLoginVO> doLogin(@Valid @RequestBody UserLoginDTO userLoginDTO) {
+        return fishUserService.doLogin(userLoginDTO);
     }
 
-    // 查询登录状态，浏览器访问： http://localhost:8192/user/isLogin
-    @GetMapping("/isLogin")
-    public String isLogin() {
-        return "当前会话是否登录：" + StpUtil.isLogin();
+    @GetMapping("/logout")
+    public void isLogin() {
+        StpUtil.logout();
+    }
+
+    @SaCheckPermission(VIP)
+    @GetMapping("/test")
+    public String test() {
+        return "成功";
     }
     
 }
