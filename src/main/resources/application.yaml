@@ -1,10 +1,80 @@
+server:
+  port: 8912
+
 spring:
   application:
     name: fish-intv
   profiles:
     active: local
-server:
-  port: 8912
+  datasource:
+    url: jdbc:postgresql://localhost:5432}/fish_intv
+    username: postgres
+    password: 123456
+    driver-class-name: org.postgresql.Driver
+  threads:
+    virtual:
+      enabled: true
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 50MB  # 支持知识库上传（简历限制在业务层检查）
+      max-request-size: 50MB
+  data:
+    redis:
+      # Redis数据库索引（默认为0）
+      database: 0
+      # Redis服务器地址
+      host: localhost
+      # Redis服务器连接端口
+      port: 6379
+      # Redis服务器连接密码（默认为空）
+      # password:
+      # 连接超时时间
+      timeout: 10s
+      lettuce:
+        pool:
+          # 连接池最大连接数
+          max-active: 200
+          # 连接池最大阻塞等待时间（使用负值表示没有限制）
+          max-wait: -1ms
+          # 连接池中的最大空闲连接
+          max-idle: 10
+          # 连接池中的最小空闲连接
+          min-idle: 0
+
+
+#  ai:
+#    retry:
+#      max-attempts: 1       # 关闭框架层重试
+#      on-client-errors: false
+#    openai:
+#      base-url:
+#      api-key:
+#      chat:
+#        options:
+#          model:
+#          temperature: 0.7
+#    vectorstore:
+#      pgvector:
+#        initialize-schema: true
+
+  # springdoc-openapi项目配置
+  springdoc:
+    swagger-ui:
+      path: /swagger-ui.html
+      tags-sorter: alpha
+      operations-sorter: alpha
+    api-docs:
+      path: /v3/api-docs
+    group-configs:
+      - group: 'fish'
+        paths-to-match: '/**'
+        packages-to-scan: hk.fishintv.common.test
+  # knife4j的增强配置，不需要增强可以不配
+  knife4j:
+    enable: true
+    setting:
+      language: zh_cn
 
 #app:
 #  storage:
@@ -13,3 +83,19 @@ server:
 #    secret-key: ${RUSTFS_SECRET_KEY}   # 私密密钥
 #    bucket: fish-intv            # 存储桶名称
 #    region: us-east-1                  # 区域（S3协议需要，可任意设置）
+#  ai:
+#    # 解析失败时的业务层最大重试次数
+#    structured-max-attempts: 2
+#    # 重试时是否把上次错误原因注入 system prompt
+#    structured-include-last-error: true
+#    # 重试时是否追加严格 JSON 指令
+#    structured-retry-append-strict-json-instruction: true
+
+sa-token:
+  token-name: fishintv
+  timeout: 2592000
+  active-timeout: -1
+  is-concurrent: false
+  is-share: false
+  token-style: uuid
+  is-log: true
